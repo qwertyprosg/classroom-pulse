@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Professor Dashboard — monitor classroom comprehension in real-time.">
+  <title>Professor Dashboard — Classroom Pulse</title>
+  <link rel="stylesheet" href="/css/shared.css">
+  <link rel="stylesheet" href="/css/professor.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ── CREATE SESSION SCREEN ───────────────────────────────────────────── -->
+  <div id="create-screen" class="screen create-screen">
+    <div class="create-content">
+      <a href="/" class="back-link">← Back</a>
+      <div class="create-icon">👨‍🏫</div>
+      <h1 class="create-title">Create a Session</h1>
+      <p class="create-subtitle">Start a live session and share the room code with your students</p>
+      <button id="create-btn" class="create-btn">
+        <span class="create-btn-text">Create Session</span>
+        <span class="create-btn-loader" style="display:none;"><span class="spinner"></span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD SCREEN ────────────────────────────────────────────────── -->
+  <div id="dashboard-screen" class="screen dashboard-screen" style="display:none;">
+    <!-- Top Bar -->
+    <header class="dash-header">
+      <div class="dash-header-left">
+        <h1 class="dash-logo">🎓 Classroom <span class="text-gradient">Pulse</span></h1>
+      </div>
+      <div class="dash-header-center">
+        <div class="room-code-display glass-card" id="room-code-display">
+          <span class="live-dot"></span>
+          <span class="room-code-text" id="room-code-text"></span>
+          <button class="copy-code-btn" id="copy-code-btn" title="Copy room code">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="dash-header-right">
+        <div class="student-count-pill glass-card">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span id="dash-student-count">0</span> students
+        </div>
+        <button id="end-session-btn" class="end-session-btn">End Session</button>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-card glass-card stat-following">
+        <div class="stat-icon">🟢</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-following">0%</div>
+          <div class="stat-label">Following</div>
+        </div>
+      </div>
+      <div class="stat-card glass-card stat-lost">
+        <div class="stat-icon">🔴</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-lost">0%</div>
+          <div class="stat-label">Lost</div>
+        </div>
+      </div>
+      <div class="stat-card glass-card stat-ahead">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-ahead">0%</div>
+          <div class="stat-label">Ahead</div>
+        </div>
+      </div>
+      <div class="stat-card glass-card stat-questions">
+        <div class="stat-icon">❓</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-questions">0</div>
+          <div class="stat-label">Questions</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="dash-grid">
+      <!-- Left Column: Chart + Heatmap -->
+      <div class="dash-left">
+        <!-- Live Chart -->
+        <div class="panel glass-card">
+          <div class="panel-header">
+            <h2 class="panel-title">📊 Live Comprehension</h2>
+            <span class="badge badge-green" id="chart-live-badge">
+              <span class="live-dot-sm"></span> LIVE
+            </span>
+          </div>
+          <div class="chart-container">
+            <canvas id="comprehension-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="panel glass-card">
+          <div class="panel-header">
+            <h2 class="panel-title">🔥 Confusion Heatmap</h2>
+          </div>
+          <div class="heatmap-container" id="heatmap-container">
+            <div class="heatmap-empty">Heatmap will populate as the session progresses...</div>
+          </div>
+          <div class="heatmap-legend">
+            <span class="heatmap-legend-item"><span class="heatmap-swatch" style="background:var(--green);"></span>Low confusion</span>
+            <span class="heatmap-legend-item"><span class="heatmap-swatch" style="background:var(--amber);"></span>Medium</span>
+            <span class="heatmap-legend-item"><span class="heatmap-swatch" style="background:var(--red);"></span>High confusion</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Alerts + Questions -->
+      <div class="dash-right">
+        <!-- Alerts -->
+        <div class="panel glass-card alerts-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">🚨 AI Alerts</h2>
+            <span class="badge badge-amber" id="alert-count-badge" style="display:none;">0</span>
+          </div>
+          <div class="alerts-list" id="alerts-list">
+            <div class="alerts-empty" id="alerts-empty">
+              <span>🤖</span>
+              <p>AI is monitoring comprehension.<br>Alerts will appear when confusion spikes.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Questions -->
+        <div class="panel glass-card questions-panel">
+          <div class="panel-header">
+            <h2 class="panel-title">❓ Student Questions</h2>
+            <div class="panel-header-actions">
+              <label class="toggle-label" for="anon-toggle">
+                <span class="toggle-text">Anonymous</span>
+                <div class="toggle-switch">
+                  <input type="checkbox" id="anon-toggle" checked>
+                  <span class="toggle-slider"></span>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="questions-feed" id="questions-feed">
+            <div class="questions-empty" id="questions-empty">
+              <span>💬</span>
+              <p>No questions yet. Students can submit questions from their devices.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── POST-SESSION SUMMARY MODAL ──────────────────────────────────────── -->
+  <div id="summary-modal" class="summary-modal" style="display:none;">
+    <div class="summary-backdrop"></div>
+    <div class="summary-content glass-card">
+      <div class="summary-header">
+        <h2>📋 Post-Session Summary</h2>
+        <button class="summary-close-btn" id="summary-close-btn">✕</button>
+      </div>
+      <div class="summary-body" id="summary-body">
+        <!-- Dynamically populated -->
+      </div>
+      <div class="summary-footer">
+        <a href="/" class="summary-home-btn">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/professor.js"></script>
+</body>
+</html>

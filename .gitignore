@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Build output
+**/dist/
+**/build/
+
+# Logs and runtime data
+*.log
+server/server_out.txt
+
+# OS and editor files
+.DS_Store
+.vscode/

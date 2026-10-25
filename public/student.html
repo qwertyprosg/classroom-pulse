@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Join a Classroom Pulse session and share your comprehension in real-time.">
+  <title>Student — Classroom Pulse</title>
+  <link rel="stylesheet" href="/css/shared.css">
+  <link rel="stylesheet" href="/css/student.css">
+</head>
+<body>
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ── JOIN SCREEN ─────────────────────────────────────────────────────── -->
+  <div id="join-screen" class="screen join-screen">
+    <div class="join-content">
+      <a href="/" class="back-link">← Back</a>
+      <div class="join-icon">🙋</div>
+      <h1 class="join-title">Join Session</h1>
+      <p class="join-subtitle">Enter the room code shared by your professor</p>
+      <div class="code-input-wrapper glass-card">
+        <input
+          id="room-code-input"
+          type="text"
+          maxlength="6"
+          placeholder="ROOM CODE"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false"
+        />
+      </div>
+      <div class="name-input-wrapper">
+        <input
+          id="name-input"
+          type="text"
+          placeholder="Your name (optional)"
+          maxlength="30"
+          autocomplete="off"
+        />
+      </div>
+      <button id="join-btn" class="join-btn" disabled>
+        <span class="join-btn-text">Join Session</span>
+        <span class="join-btn-loader" style="display:none;">
+          <span class="spinner"></span>
+        </span>
+      </button>
+      <p id="join-error" class="join-error"></p>
+    </div>
+  </div>
+
+  <!-- ── SESSION SCREEN ──────────────────────────────────────────────────── -->
+  <div id="session-screen" class="screen session-screen" style="display:none;">
+    <!-- Header -->
+    <div class="session-header glass-card">
+      <div class="session-header-left">
+        <span class="live-dot"></span>
+        <span class="session-room-code" id="display-room-code"></span>
+      </div>
+      <div class="session-header-right">
+        <span class="student-count-badge badge badge-blue">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span id="student-count">0</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Comprehension Buttons -->
+    <div class="comprehension-section">
+      <p class="section-label">How are you feeling?</p>
+      <div class="comp-buttons">
+        <button class="comp-btn comp-btn-following" data-state="following" id="btn-following">
+          <span class="comp-btn-emoji">🟢</span>
+          <span class="comp-btn-label">Following</span>
+        </button>
+        <button class="comp-btn comp-btn-lost" data-state="lost" id="btn-lost">
+          <span class="comp-btn-emoji">🔴</span>
+          <span class="comp-btn-label">Lost</span>
+        </button>
+        <button class="comp-btn comp-btn-ahead" data-state="ahead" id="btn-ahead">
+          <span class="comp-btn-emoji">⚡</span>
+          <span class="comp-btn-label">Ahead</span>
+        </button>
+        <button class="comp-btn comp-btn-question" id="btn-open-questions">
+          <span class="comp-btn-emoji">❓</span>
+          <span class="comp-btn-label">Questions</span>
+          <span class="question-count-bubble" id="question-count-bubble" style="display:none;">0</span>
+        </button>
+      </div>
+      <p class="anon-notice">Your responses are always anonymous</p>
+    </div>
+
+    <!-- Question Panel (slide-up bottom sheet) -->
+    <div id="question-panel" class="question-panel">
+      <div class="question-panel-backdrop" id="question-panel-backdrop"></div>
+      <div class="question-panel-sheet glass-card" id="question-panel-sheet">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">Questions</h2>
+        <p class="sheet-mode" id="question-mode-label">Anonymous mode</p>
+
+        <!-- Submit box -->
+        <div class="question-input-area">
+          <textarea id="question-input" placeholder="Type your question..." rows="2" maxlength="500"></textarea>
+          <button id="submit-question-btn" class="submit-question-btn" disabled>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+
+        <!-- Question list -->
+        <div class="question-list" id="question-list">
+          <div class="empty-questions" id="empty-questions">
+            <span>🤔</span>
+            <p>No questions yet. Be the first!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session Ended Overlay -->
+    <div id="session-ended-overlay" class="session-ended-overlay" style="display:none;">
+      <div class="ended-content glass-card">
+        <div class="ended-icon">✅</div>
+        <h2>Session Ended</h2>
+        <p>Thank you for participating!</p>
+        <a href="/" class="ended-home-btn">Back to Home</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/student.js"></script>
+</body>
+</html>
